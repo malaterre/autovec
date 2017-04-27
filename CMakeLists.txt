@@ -4,7 +4,7 @@ project(autov C)
 if(WIN32)
 else()
   set(CMAKE_C_STANDARD 99)
-  set (CMAKE_C_FLAGS "-std=c99 ${CMAKE_C_FLAGS}")
+  set (CMAKE_C_FLAGS "-O2 -std=c99 ${CMAKE_C_FLAGS}")
 endif()
 
 if(OPT)
@@ -15,16 +15,16 @@ if(OPT)
       )
 
   else()
+    set(OPT_VERBOSITY "-ftree-vectorizer-verbose=1 -fopt-info-vec-optimized")
     set_source_files_properties(vec.c
       PROPERTIES
-      #COMPILE_FLAGS "-msse2  -ftree-vectorize -fopt-info-vec-optimized"
-      COMPILE_FLAGS "-msse2  -ftree-vectorize -ftree-vectorizer-verbose=2"
+      COMPILE_FLAGS "-msse2 -ftree-vectorize ${OPT_VERBOSITY}"
       )
 
     set_source_files_properties(copy.c
       PROPERTIES
       #COMPILE_FLAGS "-msse2  -ftree-vectorize -fopt-info-vec-optimized"
-      COMPILE_FLAGS "-msse2  -ftree-vectorize -ftree-vectorizer-verbose=2"
+      COMPILE_FLAGS "-msse2  -ftree-vectorize ${OPT_VERBOSITY}"
       )
   endif()
 endif()
