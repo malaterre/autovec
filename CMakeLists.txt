@@ -17,10 +17,18 @@ if(OPT)
   else()
     set_source_files_properties(vec.c
       PROPERTIES
-      COMPILE_FLAGS "-std=c99 -msse2  -ftree-vectorize -fopt-info-vec-optimized"
+      #COMPILE_FLAGS "-msse2  -ftree-vectorize -fopt-info-vec-optimized"
+      COMPILE_FLAGS "-msse2  -ftree-vectorize -ftree-vectorizer-verbose=2"
+      )
+
+    set_source_files_properties(copy.c
+      PROPERTIES
+      #COMPILE_FLAGS "-msse2  -ftree-vectorize -fopt-info-vec-optimized"
+      COMPILE_FLAGS "-msse2  -ftree-vectorize -ftree-vectorizer-verbose=2"
       )
   endif()
 endif()
 
 add_executable(vec vec.c)
-set_property(TARGET vec PROPERTY C_STANDARD 99)
+#set_property(TARGET vec PROPERTY C_STANDARD 99)
+add_executable(copy copy.c)

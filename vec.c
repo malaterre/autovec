@@ -5,21 +5,39 @@
 
 #ifdef __GNUC__
 #define restrict __restrict__
+typedef size_t size_type;
 #else
 #define restrict __restrict
+typedef long size_type;
 #endif
 
-static void rescale( double * restrict out, const int * restrict in, long n, const double intercept, const double slope )
+static void rescale( double * restrict out_, const int * restrict in_, size_type n, const double intercept, const double slope )
 {
+#ifdef _MSC_VER
   #pragma loop(hint_parallel(0))
-	for( long i = 0; i < n; ++i )
+#else
+  double * out = __builtin_assume_aligned (out_, 64);
+  const int * in = __builtin_assume_aligned (in_, 32);
+#endif
+	for( size_type i = 0; i < n; ++i )
         out[i] = slope * in[i] + intercept;
 }
 
-static void rescale_int( int * restrict out, const int * restrict in, unsigned long n, const int intercept, const int slope )
+static void rescale_short( int * restrict out, const short * restrict in, size_type n, const int intercept, const int slope )
 {
+#ifdef _MSC_VER
   #pragma loop(hint_parallel(0))
-	for( unsigned long i = 0; i < n; ++i )
+#endif
+	for( size_type i = 0; i < n; ++i )
+        out[i] = slope * in[i] + intercept;
+}
+
+static void rescale_int( int * restrict out, const int * restrict in, size_type n, const int intercept, const int slope )
+{
+#ifdef _MSC_VER
+  #pragma loop(hint_parallel(0))
+#endif
+	for( size_type i = 0; i < n; ++i )
         out[i] = slope * in[i] + intercept;
 }
 struct rescale { double intercept; double slope; };
@@ -41,6 +59,7 @@ int main()
 	double * outvol = memalign(64, size * sizeof(double));
 	int * outvol2 = memalign(32, size * sizeof(int));
 	int * vol = memalign(32, size * sizeof(int));
+	short * svol = memalign(16, size * sizeof(short));
 #endif
 #endif
   unsigned short val = 0;
@@ -73,6 +92,7 @@ int main()
     for( unsigned int z = 0; z < dimz; ++z )
     {
       rescale( outvol, vol, size, r->intercept, r->slope );
+			rescale_short( outvol2, svol, size, r->intercept, r->slope );
 			rescale_int( outvol2, vol, size, r->intercept, r->slope );
     }
   }
