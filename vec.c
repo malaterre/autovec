@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <malloc.h>
 
 #ifdef __GNUC__
 #define restrict __restrict__
@@ -15,7 +16,7 @@ static void rescale( double * restrict out, const int * restrict in, long n, con
         out[i] = slope * in[i] + intercept;
 }
 
-static void rescale_int( int_a32 * restrict out, const int_a32 * restrict in, unsigned long n, const int intercept, const int slope )
+static void rescale_int( int * restrict out, const int * restrict in, unsigned long n, const int intercept, const int slope )
 {
   #pragma loop(hint_parallel(0))
 	for( unsigned long i = 0; i < n; ++i )
@@ -27,9 +28,21 @@ int main()
 {
   const unsigned int dimz = 700;
   size_t size = 1024 * 1024 * 1;
+#if 0
   double_a64 * outvol = (double_a64*)_aligned_malloc( size * sizeof(double),64);
   int_a32 * outvol2 = (int_a32*)_aligned_malloc( size * sizeof(int),32);
   int_a32 * vol = (int_a32*)_aligned_malloc( size * sizeof(int), 32);
+#else
+#if 0
+	double * outvol = aligned_alloc(64, size * sizeof(double));
+	int * outvol2 = aligned_alloc(32, size * sizeof(int));
+	unsigned short * vol = aligned_alloc(16, size * sizeof(unsigned short));
+#else
+	double * outvol = memalign(64, size * sizeof(double));
+	int * outvol2 = memalign(32, size * sizeof(int));
+	int * vol = memalign(32, size * sizeof(int));
+#endif
+#endif
   unsigned short val = 0;
   for( size_t i = 0; i < size; ++i )
   {

@@ -1,20 +1,26 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.0)
 project(autov C)
-set(CMAKE_C_STANDARD 11)
+
+if(WIN32)
+else()
+  set(CMAKE_C_STANDARD 99)
+  set (CMAKE_C_FLAGS "-std=c99 ${CMAKE_C_FLAGS}")
+endif()
 
 if(OPT)
   if(WIN32)
-	set_source_files_properties(vec.c
-			PROPERTIES
-			COMPILE_FLAGS "/O2 /Qpar /Qpar-report:2"
-			)
+    set_source_files_properties(vec.c
+      PROPERTIES
+      COMPILE_FLAGS "/O2 /Qpar /Qpar-report:2"
+      )
 
   else()
-	set_source_files_properties(vec.c
-			PROPERTIES
-			COMPILE_FLAGS "-msse2  -ftree-vectorize -fopt-info-vec-optimized"
-			)
+    set_source_files_properties(vec.c
+      PROPERTIES
+      COMPILE_FLAGS "-std=c99 -msse2  -ftree-vectorize -fopt-info-vec-optimized"
+      )
   endif()
 endif()
 
 add_executable(vec vec.c)
+set_property(TARGET vec PROPERTY C_STANDARD 99)
